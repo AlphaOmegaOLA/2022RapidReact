@@ -2,6 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+// This project is under version control using Alpha Omega's Github
+// account at https://github.com/AlphaOmegaOLA/2022RapidReact
+
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
