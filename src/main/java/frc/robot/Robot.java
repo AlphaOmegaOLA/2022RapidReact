@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 // Try the fancy Mecanum Drive this year
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-// Motor controller
+// Drive System Motor Controller
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+// Climber/Intake Arm/Intake Wheel Motor Controller
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 // Webcam
 import edu.wpi.first.cameraserver.CameraServer;
 // Gyro
@@ -27,11 +29,21 @@ import edu.wpi.first.cameraserver.CameraServer;
  */
 public class Robot extends TimedRobot 
 {
-  // Motor controllers
+  // Drive System Motor Controllers
   private final Spark leftFrontMotor = new Spark(0);
   private final Spark rightFrontMotor = new Spark(1);
   private final Spark leftRearMotor = new Spark(2);
   private final Spark rightRearMotor = new Spark(3);
+
+  // Climber Motor Controller
+  private final Talon climberMotor = new Talon(4);
+
+  // Intake Arm Motor Controller
+  private final Talon intakeArmMotor = new Talon(5);
+
+  // Intake Wheels Motor Controller
+  private final Talon intakeWheelsMotor = new Talon(6)
+
   // Mecanum Drive System
   private MecanumDrive robotDrive;
   // XBox controller
@@ -64,6 +76,8 @@ public class Robot extends TimedRobot
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. drive oriented steering. Still need to figure that out.
     robotDrive.driveCartesian(xbox.getLeftX(), xbox.getLeftY(), xbox.getRightX(), 0.0);
+
+    
 
     /*
     if (speed > 0) 
