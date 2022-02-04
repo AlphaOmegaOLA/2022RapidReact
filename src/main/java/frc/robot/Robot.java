@@ -8,8 +8,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-// Xbox joystick
-import edu.wpi.first.wpilibj.XboxController;
+// PS4 joystick
+import edu.wpi.first.wpilibj.PS4Controller;
 // Try the fancy Mecanum Drive this year
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 // Drive System Motor Controller
@@ -42,57 +42,125 @@ public class Robot extends TimedRobot
   private final Talon intakeArmMotor = new Talon(5);
 
   // Intake Wheels Motor Controller
-  private final Talon intakeWheelsMotor = new Talon(6)
+  private final Talon intakeWheelsMotor = new Talon(6);
 
   // Mecanum Drive System
   private MecanumDrive robotDrive;
   // XBox controller
-  private final XboxController xbox = new XboxController(0);
+  private final PS4Controller ps4 = new PS4Controller(0);
   // The gyro
   //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+
+  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  @Override
+  public void autonomousInit() 
+  {
+    // autonomous init code goes here
+  }
+
+  /** This function is called periodically during autonomous. */
+  @Override
+  public void autonomousPeriodic()
+  {
+    // Autonmous operations go here.
+
+    // 1. Raise the arm to the right height.
+    // 2. Fire a ball into the pit to get points.
+    // 3. Lower the arm
+    // 4. Back out of the tarmac to get taxi points.
+    // 5. Spin around to be read to grab a game piece?
+  }
 
 
   @Override
   public void robotInit() 
   {
-    // The Mecanum Drive requires all 4 motors to operate independently
-    robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
-
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
     rightFrontMotor.setInverted(true);
     rightRearMotor.setInverted(true);
 
+    // The Mecanum Drive requires all 4 motors to operate independently
+    robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
+
     // Send camera feed to dashboard
     CameraServer.startAutomaticCapture();
-
-    // Limit switch for the hanger
-    //DigitalInput toplimitSwitch = new DigitalInput(0);
   }
 
   @Override
   public void teleopPeriodic() 
   {
+    // DRIVE SYSTEM
+
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. drive oriented steering. Still need to figure that out.
-    robotDrive.driveCartesian(xbox.getLeftX(), xbox.getLeftY(), xbox.getRightX(), 0.0);
+    robotDrive.driveCartesian(ps4.getLeftX(), ps4.getLeftY(), ps4.getRightX(), 0.0);
 
-    
-
-    /*
-    if (speed > 0) 
+    // Raise the robot climber to reach the rung by pressing the green triangle button
+    if (ps4.getTriangleButtonPressed())
     {
-      if (toplimitSwitch.get()) 
-      {
-        // We are going up and top limit is tripped so stop
-        motor.set(0);
-      } 
-      else 
-      {
-        // We are going up but top limit is not tripped so go at joystic speed
-        motor.set(speed);
-      }
+      climberMotor.set(.2);
     }
-    */
+    if (ps4.getTriangleButtonReleased())
+    {
+      climberMotor.stopMotor();
+    }
+
+    // CLIMBER SYSTEM
+
+    // Lower the robot climber to pull the robot up the rung by pressing
+    // the blue X (Cross) button.
+    if (ps4.getCrossButtonPressed())
+    {
+      climberMotor.set(-.2);
+    }
+    if (ps4.getTriangleButtonReleased())
+    {
+      climberMotor.stopMotor();
+    }
+
+    // GAME PIECE INTAKE SYSTEM
+
+    // Retrieve game pieces
+    if (ps4.getSquareButtonPressed())
+    {
+      intakeWheelsMotor.set(1.0);
+    }
+    if (ps4.getSquareButtonReleased())
+    {
+      intakeWheelsMotor.stopMotor();
+    }
+
+    // Release game pieces
+    if (ps4.getCircleButtonPressed())
+    {
+      intakeWheelsMotor.set(1.0);
+    }
+    if (ps4.getCircleButtonReleased())
+    {
+      intakeWheelsMotor.stopMotor();
+    }
+
+    // INTAKE ARM SYSTEM
+
+    // Raise the arm
+    if (ps4.getR2ButtonPressed())
+    {
+      intakeWheelsMotor.set(.2);
+    }
+    if (ps4.getR2ButtonReleased())
+    {
+      intakeWheelsMotor.stopMotor();
+    }
+
+    // Lower the Arm
+    if (ps4.getL2ButtonPressed())
+    {
+      intakeArmMotor.set(-.2);
+    }
+    if (ps4.getL2ButtonReleased())
+    {
+      intakeArmMotor.stopMotor();
+    }
   }
 }
