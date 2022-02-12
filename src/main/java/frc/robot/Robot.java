@@ -9,15 +9,17 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 // PS4 joystick
-import edu.wpi.first.wpilibj.PS4Controller;
+//import edu.wpi.first.wpilibj.PS4Controller;
+// XBox joystick
+import edu.wpi.first.wpilibj.XboxController;
 // Try the fancy Mecanum Drive this year
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 // Drive System Motor Controller
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // Climber/Intake Arm/Intake Wheel Motor Controller
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
+//import edu.wpi.first.wpilibj.motorcontrol.Talon;
 // Webcam
-import edu.wpi.first.cameraserver.CameraServer;
+//import edu.wpi.first.cameraserver.CameraServer;
 // Gyro
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 // Limit switch
@@ -36,18 +38,20 @@ public class Robot extends TimedRobot
   private final Spark rightRearMotor = new Spark(3);
 
   // Climber Motor Controller
-  private final Talon climberMotor = new Talon(4);
+  private final Spark climberMotor = new Spark(4);
 
   // Intake Arm Motor Controller
-  private final Talon intakeArmMotor = new Talon(5);
+  private final Spark intakeArmMotor = new Spark(5);
 
   // Intake Wheels Motor Controller
-  private final Talon intakeWheelsMotor = new Talon(6);
+  private final Spark intakeWheelsMotor = new Spark(6);
 
   // Mecanum Drive System
   private MecanumDrive robotDrive;
-  // XBox controller
-  private final PS4Controller ps4 = new PS4Controller(0);
+  // PS4 controller
+  //private final PS4Controller ps4 = new PS4Controller(0);
+  // XBox Controller
+  private final XboxController xbox = new XboxController(0);
   // The gyro
   //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
@@ -84,7 +88,7 @@ public class Robot extends TimedRobot
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
 
     // Send camera feed to dashboard
-    CameraServer.startAutomaticCapture();
+    //CameraServer.startAutomaticCapture();
   }
 
   @Override
@@ -94,14 +98,15 @@ public class Robot extends TimedRobot
 
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. drive oriented steering. Still need to figure that out.
-    robotDrive.driveCartesian(ps4.getLeftX(), ps4.getLeftY(), ps4.getRightX(), 0.0);
+    //robotDrive.driveCartesian(ps4.getLeftX(), ps4.getLeftYS(), ps4.getRightX(), 0.0);
+    robotDrive.driveCartesian(xbox.getLeftX(), xbox.getLeftY(), xbox.getRightX(), 0.0);
 
     // Raise the robot climber to reach the rung by pressing the green triangle button
-    if (ps4.getTriangleButtonPressed())
+    if (xbox.getYButtonPressed())
     {
       climberMotor.set(.2);
     }
-    if (ps4.getTriangleButtonReleased())
+    if (xbox.getYButtonPressed())
     {
       climberMotor.stopMotor();
     }
@@ -110,55 +115,55 @@ public class Robot extends TimedRobot
 
     // Lower the robot climber to pull the robot up the rung by pressing
     // the blue X (Cross) button.
-    if (ps4.getCrossButtonPressed())
+    if (xbox.getAButtonPressed())
     {
       climberMotor.set(-.2);
     }
-    if (ps4.getTriangleButtonReleased())
+    if (xbox.getAButtonReleased())
     {
       climberMotor.stopMotor();
     }
 
     // GAME PIECE INTAKE SYSTEM
 
-    // Retrieve game pieces
-    if (ps4.getSquareButtonPressed())
+    // Retrieve game pieces - Square
+    if (xbox.getXButtonPressed())
     {
       intakeWheelsMotor.set(1.0);
     }
-    if (ps4.getSquareButtonReleased())
+    if (xbox.getXButtonReleased())
     {
       intakeWheelsMotor.stopMotor();
     }
 
-    // Release game pieces
-    if (ps4.getCircleButtonPressed())
+    // Release game pieces - Circle
+    if (xbox.getBButtonPressed())
     {
       intakeWheelsMotor.set(1.0);
     }
-    if (ps4.getCircleButtonReleased())
+    if (xbox.getBButtonReleased())
     {
       intakeWheelsMotor.stopMotor();
     }
 
     // INTAKE ARM SYSTEM
 
-    // Raise the arm
-    if (ps4.getR2ButtonPressed())
+    // Raise the arm - Right trigger
+    if (xbox.getRightBumperPressed())
     {
       intakeWheelsMotor.set(.2);
     }
-    if (ps4.getR2ButtonReleased())
+    if (xbox.getRightBumperReleased())
     {
       intakeWheelsMotor.stopMotor();
     }
 
-    // Lower the Arm
-    if (ps4.getL2ButtonPressed())
+    // Lower the Arm - Left trigger
+    if (xbox.getLeftBumperPressed())
     {
       intakeArmMotor.set(-.2);
     }
-    if (ps4.getL2ButtonReleased())
+    if (xbox.getLeftBumperReleased())
     {
       intakeArmMotor.stopMotor();
     }
