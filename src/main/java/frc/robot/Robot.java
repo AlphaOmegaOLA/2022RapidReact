@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import javax.lang.model.util.ElementScanner6;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 // PS4 joystick
 //import edu.wpi.first.wpilibj.PS4Controller;
@@ -24,6 +26,8 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 // Limit switch
 //import edu.wpi.first.wpilibj.DigitalInput;
+// Slew rate limiter to make drive system less jumpy
+import edu.wpi.first.math.filter.SlewRateLimiter;
 
 /**
  * This is a demo program showing the use of the DifferentialDrive class. Runs the motors with tank
@@ -55,6 +59,11 @@ public class Robot extends TimedRobot
   // The gyro
   //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
+  // Slew rater limiter to make joystick less jumpy
+  SlewRateLimiter filter = new SlewRateLimiter(.5);
+
+
+
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() 
@@ -81,8 +90,9 @@ public class Robot extends TimedRobot
   {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
-    rightFrontMotor.setInverted(true);
-    rightRearMotor.setInverted(true);
+    //rightFrontMotor.setInverted(true);
+    leftFrontMotor.setInverted(true);
+    leftRearMotor.setInverted(true);
 
     // The Mecanum Drive requires all 4 motors to operate independently
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
@@ -95,76 +105,51 @@ public class Robot extends TimedRobot
   public void teleopPeriodic() 
   {
     // DRIVE SYSTEM
-
+    double speed = .3;
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. drive oriented steering. Still need to figure that out.
     //robotDrive.driveCartesian(ps4.getLeftX(), ps4.getLeftYS(), ps4.getRightX(), 0.0);
-    robotDrive.driveCartesian(xbox.getLeftX(), xbox.getLeftY(), xbox.getRightX(), 0.0);
-
-    // Raise the robot climber to reach the rung by pressing the green triangle button
-    if (xbox.getYButtonPressed())
-    {
-      climberMotor.set(.2);
-    }
-    if (xbox.getYButtonPressed())
-    {
-      climberMotor.stopMotor();
-    }
+    robotDrive.driveCartesian(xbox.getLeftY()*speed, xbox.getLeftX()*speed, xbox.getRightX()*speed);
 
     // CLIMBER SYSTEM
 
+    // Raise the robot climber to reach the rung by pressing the green triangle button
+    if (xbox.getYButton())
+    {
+      climberMotor.set(.5);
+    }
     // Lower the robot climber to pull the robot up the rung by pressing
     // the blue X (Cross) button.
-    if (xbox.getAButtonPressed())
+    else if (xbox.getAButton())
     {
-      climberMotor.set(-.2);
+      climberMotor.set(-.5);
+    } 
+    // GAME PIECE INTAKE SYSTEM
+    // Retrieve game pieces - Square
+    else if (xbox.getXButton())
+    {
+      intakeWheelsMotor.set(1.0);
     }
-    if (xbox.getAButtonReleased())
+    // Release game pieces - Circle
+    else if (xbox.getBButton())
+    {
+      intakeWheelsMotor.set(1.0);
+    }
+    // INTAKE ARM SYSTEM
+    // Raise the arm - Right trigger
+    else if (xbox.getRightBumper())
+    {
+      intakeArmMotor.set(.5);
+    }
+    // Lower the Arm - Left trigger
+    else if (xbox.getLeftBumper())
+    {
+      intakeArmMotor.set(-.5);
+    }
+    else
     {
       climberMotor.stopMotor();
-    }
-
-    // GAME PIECE INTAKE SYSTEM
-
-    // Retrieve game pieces - Square
-    if (xbox.getXButtonPressed())
-    {
-      intakeWheelsMotor.set(1.0);
-    }
-    if (xbox.getXButtonReleased())
-    {
       intakeWheelsMotor.stopMotor();
-    }
-
-    // Release game pieces - Circle
-    if (xbox.getBButtonPressed())
-    {
-      intakeWheelsMotor.set(1.0);
-    }
-    if (xbox.getBButtonReleased())
-    {
-      intakeWheelsMotor.stopMotor();
-    }
-
-    // INTAKE ARM SYSTEM
-
-    // Raise the arm - Right trigger
-    if (xbox.getRightBumperPressed())
-    {
-      intakeWheelsMotor.set(.2);
-    }
-    if (xbox.getRightBumperReleased())
-    {
-      intakeWheelsMotor.stopMotor();
-    }
-
-    // Lower the Arm - Left trigger
-    if (xbox.getLeftBumperPressed())
-    {
-      intakeArmMotor.set(-.2);
-    }
-    if (xbox.getLeftBumperReleased())
-    {
       intakeArmMotor.stopMotor();
     }
   }
