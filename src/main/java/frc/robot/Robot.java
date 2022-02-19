@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // Gyro
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 // Limit switch
-//import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 // Slew rate limiter to make drive system less jumpy
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
@@ -36,10 +36,10 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 public class Robot extends TimedRobot 
 {
   // Drive System Motor Controllers
-  private final Spark leftFrontMotor = new Spark(0);
-  private final Spark rightFrontMotor = new Spark(1);
-  private final Spark leftRearMotor = new Spark(2);
-  private final Spark rightRearMotor = new Spark(3);
+  private final Spark rightFrontMotor = new Spark(0);
+  private final Spark leftFrontMotor = new Spark(1);
+  private final Spark rightRearMotor = new Spark(2);
+  private final Spark leftRearMotor = new Spark(3);
 
   // Climber Motor Controller
   private final Spark climberMotor = new Spark(4);
@@ -58,6 +58,9 @@ public class Robot extends TimedRobot
   private final XboxController xbox = new XboxController(0);
   // The gyro
   //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+
+  // Limit switch
+  DigitalInput armLimitSwitch = new DigitalInput(0);
 
   // Slew rater limiter to make joystick less jumpy
   SlewRateLimiter filter = new SlewRateLimiter(.5);
@@ -90,9 +93,8 @@ public class Robot extends TimedRobot
   {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
-    //rightFrontMotor.setInverted(true);
-    leftFrontMotor.setInverted(true);
-    leftRearMotor.setInverted(true);
+    rightFrontMotor.setInverted(true);
+    rightRearMotor.setInverted(true);
 
     // The Mecanum Drive requires all 4 motors to operate independently
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
@@ -114,7 +116,12 @@ public class Robot extends TimedRobot
     // CLIMBER SYSTEM
 
     // Raise the robot climber to reach the rung by pressing the green triangle button
-    if (xbox.getYButton())
+    if (armLimitSwitch.get())
+    {
+      System.out.println("Limit Switch Triggered");
+      intakeArmMotor.stopMotor();
+    }
+    else if (xbox.getYButton())
     {
       climberMotor.set(.5);
     }
@@ -140,11 +147,13 @@ public class Robot extends TimedRobot
     else if (xbox.getRightBumper())
     {
       intakeArmMotor.set(.5);
+      System.out.println("Right Bumper Button - Raise Intake Arm");
     }
     // Lower the Arm - Left trigger
     else if (xbox.getLeftBumper())
     {
       intakeArmMotor.set(-.5);
+      System.out.println("Left Bumper Button - Lower Intake Arm");
     }
     else
     {
