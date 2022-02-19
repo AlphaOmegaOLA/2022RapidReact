@@ -145,7 +145,7 @@ public class Robot extends TimedRobot
     // CLIMBER SYSTEM
 
     // Raise the robot climber to reach the rung by pressing the green triangle button
-    if (armLimitSwitch.get())
+    if (armLimitSwitch.get() && xbox.getLeftBumper())
     {
       System.out.println("Limit Switch Triggered");
       intakeArmMotor.stopMotor();
