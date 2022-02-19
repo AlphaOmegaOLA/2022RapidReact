@@ -10,6 +10,7 @@ package frc.robot;
 import javax.lang.model.util.ElementScanner6;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 // PS4 joystick
 //import edu.wpi.first.wpilibj.PS4Controller;
 // XBox joystick
@@ -36,9 +37,9 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 public class Robot extends TimedRobot 
 {
   // Drive System Motor Controllers
-  private final Spark rightFrontMotor = new Spark(0);
-  private final Spark leftFrontMotor = new Spark(1);
-  private final Spark rightRearMotor = new Spark(2);
+  private final Spark rightRearMotor = new Spark(0);
+  private final Spark rightFrontMotor = new Spark(1);
+  private final Spark leftFrontMotor = new Spark(2);
   private final Spark leftRearMotor = new Spark(3);
 
   // Climber Motor Controller
@@ -65,6 +66,9 @@ public class Robot extends TimedRobot
   // Slew rater limiter to make joystick less jumpy
   SlewRateLimiter filter = new SlewRateLimiter(.5);
 
+  // Autonomous timer
+  Timer driveTimer = new Timer();
+
 
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -72,6 +76,15 @@ public class Robot extends TimedRobot
   public void autonomousInit() 
   {
     // autonomous init code goes here
+    // We need to invert one side of the drivetrain so that positive voltages
+    // result in both sides moving forward. 
+    rightFrontMotor.setInverted(false);
+    rightRearMotor.setInverted(false);
+    leftFrontMotor.setInverted(true);
+    leftRearMotor.setInverted(true);
+
+    driveTimer.start();
+
   }
 
   /** This function is called periodically during autonomous. */
@@ -80,11 +93,25 @@ public class Robot extends TimedRobot
   {
     // Autonmous operations go here.
 
-    // 1. Raise the arm to the right height.
-    // 2. Fire a ball into the pit to get points.
-    // 3. Lower the arm
-    // 4. Back out of the tarmac to get taxi points.
-    // 5. Spin around to be read to grab a game piece?
+    // 1. Fire a ball into the pit to get points.
+    // 2. Lower the arm
+    // 3. Back out of the tarmac to get taxi points.
+    // 4. Spin around to be read to grab a game piece?
+    boolean driving = false;
+
+    if (driveTimer.get()>3.0)
+    {
+      leftFrontMotor.stopMotor();
+      driveTimer.stop();    
+    }
+    else if (driveTimer.get()<3.0)
+    {
+      if (!driving)
+      {
+        driving = true;
+        leftFrontMotor.set(0.4);
+      }
+    }
   }
 
 
@@ -93,11 +120,13 @@ public class Robot extends TimedRobot
   {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
-    rightFrontMotor.setInverted(true);
-    rightRearMotor.setInverted(true);
+    rightFrontMotor.setInverted(false);
+    rightRearMotor.setInverted(false);
+    leftFrontMotor.setInverted(true);
+    leftRearMotor.setInverted(true);
 
     // The Mecanum Drive requires all 4 motors to operate independently
-    robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
+    robotDrive = new MecanumDrive(rightFrontMotor, rightRearMotor, leftFrontMotor, leftRearMotor);
 
     // Send camera feed to dashboard
     //CameraServer.startAutomaticCapture();
