@@ -11,8 +11,6 @@ import javax.lang.model.util.ElementScanner6;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-// PS4 joystick
-//import edu.wpi.first.wpilibj.PS4Controller;
 // XBox joystick
 import edu.wpi.first.wpilibj.XboxController;
 // Try the fancy Mecanum Drive this year
@@ -24,7 +22,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // Webcam
 //import edu.wpi.first.cameraserver.CameraServer;
 // Gyro
-//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 // Limit switch
 import edu.wpi.first.wpilibj.DigitalInput;
 // Slew rate limiter to make drive system less jumpy
@@ -58,7 +56,7 @@ public class Robot extends TimedRobot
   // XBox Controller
   private final XboxController xbox = new XboxController(0);
   // The gyro
-  //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+  private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
   // Limit switch
   DigitalInput armLimitSwitch = new DigitalInput(0);
@@ -78,13 +76,8 @@ public class Robot extends TimedRobot
     // autonomous init code goes here
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
-    rightFrontMotor.setInverted(false);
-    rightRearMotor.setInverted(false);
-    leftFrontMotor.setInverted(true);
-    leftRearMotor.setInverted(true);
-
+    driveTimer.reset();
     driveTimer.start();
-
   }
 
   /** This function is called periodically during autonomous. */
@@ -96,24 +89,16 @@ public class Robot extends TimedRobot
     // 1. Fire a ball into the pit to get points.
     // 2. Lower the arm
     // 3. Back out of the tarmac to get taxi points.
-    // 4. Spin around to be read to grab a game piece?
-    boolean driving = false;
-
-    if (driveTimer.get()>3.0)
+       // Drive for 2 seconds
+    if (driveTimer.get() < 2.0) 
     {
-      leftFrontMotor.stopMotor();
-      driveTimer.stop();    
-    }
-    else if (driveTimer.get()<3.0)
+        robotDrive.driveCartesian(0.5, 0.0, 0.0); // drive forwards half speed
+    } 
+    else 
     {
-      if (!driving)
-      {
-        driving = true;
-        leftFrontMotor.set(0.4);
-      }
+        robotDrive.stopMotor(); // stop robot
     }
   }
-
 
   @Override
   public void robotInit() 
@@ -140,7 +125,8 @@ public class Robot extends TimedRobot
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. drive oriented steering. Still need to figure that out.
     //robotDrive.driveCartesian(ps4.getLeftX(), ps4.getLeftYS(), ps4.getRightX(), 0.0);
-    robotDrive.driveCartesian(xbox.getLeftY()*speed, xbox.getLeftX()*speed, xbox.getRightX()*speed);
+    System.out.println(gyro.getAngle());
+    robotDrive.driveCartesian(filter.calculate(xbox.getLeftY()*speed), filter.calculate(xbox.getLeftX()*speed), filter.calculate(xbox.getRightX()*speed), gyro.getAngle());
 
     // CLIMBER SYSTEM
 
