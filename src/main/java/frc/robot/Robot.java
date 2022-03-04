@@ -49,6 +49,9 @@ public class Robot extends TimedRobot
   // Intake Wheels Motor Controller
   private final Spark intakeWheelsMotor = new Spark(6);
 
+  // LED Lights Controller
+  private final Spark lights = new Spark(7);
+
   // Mecanum Drive System
   private MecanumDrive robotDrive;
   // PS4 controller
