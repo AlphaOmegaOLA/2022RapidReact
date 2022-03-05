@@ -63,8 +63,8 @@ public class Robot extends TimedRobot
   // Slew rater limiter to make joystick less jumpy
   SlewRateLimiter filter = new SlewRateLimiter(.5);
 
-  // Drive timer for autonomous
-  Timer driveTimer = new Timer();
+  // Timer for autonomous
+  Timer autoTimer = new Timer();
 
   // Game timer for Teleop
   Timer gameTimer = new Timer();
@@ -76,13 +76,17 @@ public class Robot extends TimedRobot
   // to go full speed for competition
   double speed = .3;
 
+  // Flag to see if the ball was
+  // launched in autonomous mode
+  boolean ballLaunched = false;
+
   // AUTONOMOUS CODE
   @Override
   public void autonomousInit() 
   {
     // autonomous init code goes here
-    driveTimer.reset();
-    driveTimer.start();
+    autoTimer.reset();
+    autoTimer.start();
 
     // Turn on the lights for autonomous
     lights.set(-0.51);
@@ -91,13 +95,30 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousPeriodic()
   {
-    // Autonmous operations go here.
+    // Autonmous operations
 
     // 1. Fire a ball into the pit to get points.
     // 2. Lower the arm
     // 3. Back out of the tarmac to get taxi points.
     //    Drive for 2 seconds
-    if (driveTimer.get() < 2.0) 
+    
+    // Fire the ball. Note: in testing
+    // make sure we don't need to rais the arm
+    if (!ballLaunched)
+    {
+      ballLaunched = true;
+      if (autoTimer.get() < 5.0)
+      {
+        intakeWheelsMotor.set(-1.0);
+      }
+      else
+      {
+        intakeWheelsMotor.stopMotor();
+      }
+
+    }
+    
+    if (autoTimer.get() < 8.0) 
     {
         robotDrive.driveCartesian(-0.5, 0.0, 0.0); // drive backwards half speed
     } 
