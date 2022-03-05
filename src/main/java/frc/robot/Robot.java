@@ -68,13 +68,10 @@ public class Robot extends TimedRobot
 
   // Game timer for Teleop
   Timer gameTimer = new Timer();
-
-  // Stores the gyro angle so we don't print it more than we need to.
-  double angle = gyro.getAngle();
     
   // Dampens the speed on the drive motors for testing. Set to 1.0
   // to go full speed for competition
-  double speed = .3;
+  double speed = .5;
 
   // Flag to see if the ball was
   // launched in autonomous mode
@@ -89,7 +86,7 @@ public class Robot extends TimedRobot
     autoTimer.start();
 
     // Turn on the lights for autonomous
-    lights.set(-0.51);
+    //lights.set(-0.51);
   }
 
   @Override
@@ -158,7 +155,7 @@ public class Robot extends TimedRobot
     if ((gameTimer.get()) > 130.0 && !endGame)
     {
       endGame = true;
-      lights.set(-0.43);
+      //lights.set(-0.43);
     }
     
     // DRIVE SYSTEM
@@ -168,26 +165,18 @@ public class Robot extends TimedRobot
     // while driving in any direction. For driver-oriented you set it to 0.0;
     
     // Gyro angle readout
-    double newAngle = gyro.getAngle();
-    if (newAngle != angle)
-    {
-      angle = newAngle;
-      System.out.print("Gyro angle: ");
-      System.out.println(angle);
-    }
-    System.out.print("Gyro Angle: ");
-    System.out.println(gyro.getAngle());
+
 
     // Directional lights
     if (xbox.getLeftY() > 0)
     {
       // Moving forward is solid green
-      lights.set(.77);
+      //lights.set(.77);
     }
     else if (xbox.getLeftY() < 0)
     {
       // Moving backwards is solid red
-      lights.set(.61);
+      //lights.set(.61);
     }
 
     // Mecanum driving  
@@ -203,7 +192,7 @@ public class Robot extends TimedRobot
       System.out.println("Intake Arm Limit Switch Triggered");
       intakeArmMotor.stopMotor();
       // Set lights to strobe gold
-      lights.set(-0.07);
+      //lights.set(-0.07);
     }
     // Pull the climbing hook down so the robot climbs.    
     else if (xbox.getYButton())
@@ -211,7 +200,7 @@ public class Robot extends TimedRobot
       System.out.println("Y Button (Triangle) - Climbing up!");
       climberMotor.set(.5);
       // Set lights to "large fire"
-      lights.set(-0.57);
+      //lights.set(-0.57);
     }
     // Lower the robot by unwinding the spool
     else if (xbox.getAButton())
@@ -219,7 +208,7 @@ public class Robot extends TimedRobot
       System.out.println("A Button (X Button) - Climbing down!");
       climberMotor.set(-.5);
       // Set lights to rainbow twinkles
-      lights.set(-0.55);
+      //lights.set(-0.55);
     } 
 
     // GAME PIECE INTAKE SYSTEM
@@ -227,34 +216,34 @@ public class Robot extends TimedRobot
     else if (xbox.getXButton())
     {
       System.out.println("X Button (Square) - Intake retrieving!");
-      intakeWheelsMotor.set(1.0);
+      intakeWheelsMotor.set(1.0*speed);
       // Set lights to "light chase blue"
-      lights.set(-0.29);
+      //lights.set(-0.29);
     }
     // Release game pieces - Circle
     else if (xbox.getBButton())
     {
       System.out.println("B Button (Circle) - Intake releasing!");
-      intakeWheelsMotor.set(-1.0);
+      intakeWheelsMotor.set(-1.0*speed);
       // Set lights to "light chase red"
-      lights.set(-0.31);
+      //lights.set(-0.31);
     }
     // INTAKE ARM SYSTEM
     // Raise the arm - Right trigger
     else if (xbox.getRightBumper())
     {
-      intakeArmMotor.set(.5);
+      intakeArmMotor.set(.3);
       System.out.println("Right Bumper Button - Raise Intake Arm");
       // Set lights to solid violet
-      lights.set(.91);
+      //lights.set(.91);
     }
     // Lower the Arm - Left trigger
     else if (xbox.getLeftBumper())
     {
-      intakeArmMotor.set(-.5);
+      intakeArmMotor.set(-.3);
       System.out.println("Left Bumper Button - Lower Intake Arm");
       // Set lights to solid white
-      lights.set(.93);
+      //lights.set(.93);
     }
     else
     {
