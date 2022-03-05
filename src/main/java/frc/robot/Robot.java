@@ -7,10 +7,6 @@
 
 package frc.robot;
 
-// Came with the template. Not sure what it does so
-// we'll leave it
-import javax.lang.model.util.ElementScanner6;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 // Countdown Timers
 import edu.wpi.first.wpilibj.Timer;
@@ -31,10 +27,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 // Slew rate limiter to make drive system less jumpy
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
-/**
- * This is a demo program showing the use of the DifferentialDrive class. Runs the motors with tank
- * steering and an Xbox controller.
- */
 public class Robot extends TimedRobot 
 {
   // Drive System Motor Controllers
@@ -71,8 +63,11 @@ public class Robot extends TimedRobot
   // Slew rater limiter to make joystick less jumpy
   SlewRateLimiter filter = new SlewRateLimiter(.5);
 
-  // Autonomous timer
+  // Drive timer for autonomous
   Timer driveTimer = new Timer();
+
+  // Game timer for Teleop
+  Timer gameTimer = new Timer();
 
   // Stores the gyro angle so we don't print it more than we need to.
   double angle = gyro.getAngle();
@@ -134,6 +129,17 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic() 
   {
+    
+    // Lights go crazy in the last 10 seconds of the match
+    // when we should be hanging.
+    // Set to "Color Waves, Party Palette" 
+    boolean endGame = false;
+    if ((gameTimer.get()) > 130.0 && !endGame)
+    {
+      endGame = true;
+      lights.set(-0.43);
+    }
+    
     // DRIVE SYSTEM
     
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
@@ -173,7 +179,7 @@ public class Robot extends TimedRobot
     if (armLimitSwitch.get() && xbox.getLeftBumper())
     {
       // The intake arm has gone far enough. Stop it.
-      System.out.println("Limit Switch Triggered");
+      System.out.println("Intake Arm Limit Switch Triggered");
       intakeArmMotor.stopMotor();
       // Set lights to strobe gold
       lights.set(-0.07);
@@ -232,7 +238,10 @@ public class Robot extends TimedRobot
     else
     {
       // Turn the lights off
-      lights.stopMotor();
+      if (!endGame)
+      {
+        lights.stopMotor();
+      }
       // Stop any other motors
       climberMotor.stopMotor();
       intakeWheelsMotor.stopMotor();
