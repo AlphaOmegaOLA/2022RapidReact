@@ -61,7 +61,7 @@ public class Robot extends TimedRobot
   DigitalInput armLimitSwitch = new DigitalInput(0);
 
   // Slew rater limiter to make joystick less jumpy
-  SlewRateLimiter filter = new SlewRateLimiter(.5);
+  SlewRateLimiter filter = new SlewRateLimiter(1.0);
 
   // Timer for autonomous
   Timer autoTimer = new Timer();
@@ -71,7 +71,7 @@ public class Robot extends TimedRobot
     
   // Dampens the speed on the drive motors for testing. Set to 1.0
   // to go full speed for competition
-  double speed = .5;
+  double speed = 1.0;
 
   // Flag to see if the ball was
   // launched in autonomous mode
@@ -133,7 +133,7 @@ public class Robot extends TimedRobot
     // result in both sides moving forward. 
     rightFrontMotor.setInverted(false);
     rightRearMotor.setInverted(false);
-    leftFrontMotor.setInverted(true);
+    leftFrontMotor.setInverted(false);
     leftRearMotor.setInverted(true);
 
     // The Mecanum Drive requires all 4 motors to operate independently
