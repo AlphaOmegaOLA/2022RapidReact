@@ -1,0 +1,14 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/ADXRS450_Gyro[0]": "Gyro",
+      "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
+      "/LiveWindow/Ungrouped/MecanumDrive[1]": "MecanumDrive",
+      "/LiveWindow/Ungrouped/Spark[4]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Spark[5]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Spark[7]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon[6]": "Motor Controller"
+    }
+  }
+}

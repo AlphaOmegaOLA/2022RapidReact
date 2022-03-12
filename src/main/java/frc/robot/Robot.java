@@ -18,12 +18,12 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // Intake Wheel Motor Controller
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
-// Webcam
+// Webcam Server
 import edu.wpi.first.cameraserver.CameraServer;
+// USB Cameras
+import edu.wpi.first.cscore.UsbCamera;
 // Gyro
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-// Limit switch
-import edu.wpi.first.wpilibj.DigitalInput;
 // Slew rate limiter to make drive system less jumpy
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
@@ -50,18 +50,21 @@ public class Robot extends TimedRobot
   // Mecanum Drive System
   private MecanumDrive robotDrive;
 
-  // XBox Controller
-  private final XboxController xbox = new XboxController(0);
+  // XBox drive Controller
+  private final XboxController drive_xbox = new XboxController(0);
+
+  // XBox drive Controller
+  private final XboxController game_xbox = new XboxController(1);
 
   // The gyro
   private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
-  // Limit switch - for stoping the intake arm from
-  //                going down too far
-  DigitalInput armLimitSwitch = new DigitalInput(0);
+  // Top Camera
+  UsbCamera topcam;
+  UsbCamera bottomcam;
 
   // Slew rater limiter to make joystick less jumpy
-  SlewRateLimiter filter = new SlewRateLimiter(1.0);
+  SlewRateLimiter filter = new SlewRateLimiter(0.5);
 
   // Timer for autonomous
   Timer autoTimer = new Timer();
@@ -131,16 +134,17 @@ public class Robot extends TimedRobot
   {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
-    rightFrontMotor.setInverted(false);
-    rightRearMotor.setInverted(false);
+    rightFrontMotor.setInverted(true);
+    rightRearMotor.setInverted(true);
     leftFrontMotor.setInverted(false);
-    leftRearMotor.setInverted(true);
+    leftRearMotor.setInverted(false);
 
     // The Mecanum Drive requires all 4 motors to operate independently
-    robotDrive = new MecanumDrive(rightFrontMotor, rightRearMotor, leftFrontMotor, leftRearMotor);
+    robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
 
     // Send camera feed to dashboard
-    CameraServer.startAutomaticCapture();
+    topcam = CameraServer.startAutomaticCapture(0);
+    bottomcam = CameraServer.startAutomaticCapture(1);
   }
 
   // MANUAL OPERATION
@@ -163,39 +167,15 @@ public class Robot extends TimedRobot
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. driver oriented steering.  Field-oriented allows the robot to spin
     // while driving in any direction. For driver-oriented you set it to 0.0;
-    
-    // Gyro angle readout
-
-
-    // Directional lights
-    if (xbox.getLeftY() > 0)
-    {
-      // Moving forward is solid green
-      //lights.set(.77);
-    }
-    else if (xbox.getLeftY() < 0)
-    {
-      // Moving backwards is solid red
-      //lights.set(.61);
-    }
+  
 
     // Mecanum driving  
-    robotDrive.driveCartesian(filter.calculate(xbox.getLeftY()*speed), filter.calculate(xbox.getLeftX()*speed), filter.calculate(xbox.getRightX()*speed), gyro.getAngle());
+    robotDrive.driveCartesian(drive_xbox.getLeftY()*.6, drive_xbox.getLeftX()*.6, drive_xbox.getRightX(), gyro.getAngle());
 
     // CLIMBER SYSTEM
 
-    // First we check if the intake arm is coming down and
-    // hitting the switch...
-    if (armLimitSwitch.get() && xbox.getLeftBumper())
-    {
-      // The intake arm has gone far enough. Stop it.
-      System.out.println("Intake Arm Limit Switch Triggered");
-      intakeArmMotor.stopMotor();
-      // Set lights to strobe gold
-      //lights.set(-0.07);
-    }
     // Pull the climbing hook down so the robot climbs.    
-    else if (xbox.getYButton())
+    if (game_xbox.getYButton())
     {
       System.out.println("Y Button (Triangle) - Climbing up!");
       climberMotor.set(.5);
@@ -203,7 +183,7 @@ public class Robot extends TimedRobot
       //lights.set(-0.57);
     }
     // Lower the robot by unwinding the spool
-    else if (xbox.getAButton())
+    else if (game_xbox.getAButton())
     {
       System.out.println("A Button (X Button) - Climbing down!");
       climberMotor.set(-.5);
@@ -213,34 +193,34 @@ public class Robot extends TimedRobot
 
     // GAME PIECE INTAKE SYSTEM
     // Retrieve game pieces - Square
-    else if (xbox.getXButton())
+    else if (game_xbox.getXButton())
     {
       System.out.println("X Button (Square) - Intake retrieving!");
-      intakeWheelsMotor.set(1.0*speed);
+      intakeWheelsMotor.set(.6);
       // Set lights to "light chase blue"
       //lights.set(-0.29);
     }
     // Release game pieces - Circle
-    else if (xbox.getBButton())
+    else if (game_xbox.getBButton())
     {
       System.out.println("B Button (Circle) - Intake releasing!");
-      intakeWheelsMotor.set(-1.0*speed);
+      intakeWheelsMotor.set(-1.0);
       // Set lights to "light chase red"
       //lights.set(-0.31);
     }
     // INTAKE ARM SYSTEM
     // Raise the arm - Right trigger
-    else if (xbox.getRightBumper())
+    else if (game_xbox.getRightBumper())
     {
-      intakeArmMotor.set(.3);
+      intakeArmMotor.set(.4);
       System.out.println("Right Bumper Button - Raise Intake Arm");
       // Set lights to solid violet
       //lights.set(.91);
     }
     // Lower the Arm - Left trigger
-    else if (xbox.getLeftBumper())
+    else if (game_xbox.getLeftBumper())
     {
-      intakeArmMotor.set(-.3);
+      intakeArmMotor.set(-.4);
       System.out.println("Left Bumper Button - Lower Intake Arm");
       // Set lights to solid white
       //lights.set(.93);
