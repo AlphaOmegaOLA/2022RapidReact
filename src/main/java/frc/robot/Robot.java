@@ -74,7 +74,7 @@ public class Robot extends TimedRobot
     
   // Dampens the speed on the drive motors for testing. Set to 1.0
   // to go full speed for competition
-  double speed = 1.0;
+  double speed = 0.6;
 
   // Flag to see if the ball was
   // launched in autonomous mode
@@ -167,10 +167,9 @@ public class Robot extends TimedRobot
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. driver oriented steering.  Field-oriented allows the robot to spin
     // while driving in any direction. For driver-oriented you set it to 0.0;
-  
 
-    // Mecanum driving  
-    robotDrive.driveCartesian(drive_xbox.getLeftY()*.6, drive_xbox.getLeftX()*.6, drive_xbox.getRightX(), gyro.getAngle());
+    // Mecanum driving - note Y is first and multiplied by a negative  
+    robotDrive.driveCartesian(-1*drive_xbox.getLeftY()*speed, drive_xbox.getLeftX()*speed, drive_xbox.getRightX(), gyro.getAngle());
 
     // CLIMBER SYSTEM
 
