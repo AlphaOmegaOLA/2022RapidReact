@@ -18,6 +18,9 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // Intake Wheel Motor Controller
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
+
+import javax.lang.model.util.ElementScanner6;
+
 // Webcam Server
 import edu.wpi.first.cameraserver.CameraServer;
 // USB Cameras
@@ -26,6 +29,8 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 // Slew rate limiter to make drive system less jumpy
 import edu.wpi.first.math.filter.SlewRateLimiter;
+// Driver station info for game data
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class Robot extends TimedRobot 
 {
@@ -89,7 +94,18 @@ public class Robot extends TimedRobot
     autoTimer.start();
 
     // Turn on the lights for autonomous
-    //lights.set(-0.51);
+    if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
+    {
+      lights.set(-0.15); 
+    }
+    else if (DriverStation.getAlliance() == DriverStation.Alliance.Red)
+    {
+      lights.set(-0.17);
+    }
+    else
+    {
+      lights.set(-0.13);
+    }
   }
 
   @Override
@@ -97,35 +113,47 @@ public class Robot extends TimedRobot
   {
     // Autonmous operations
 
-    // 1. Fire a ball into the pit to get points.
-    // 2. Lower the arm
+    // 1. Roll up to the lower hub
+    // 2. Fire a ball into the pit to get points.
+    // 3. Lower the arm
     // 3. Back out of the tarmac to get taxi points.
-    //    Drive for 2 seconds
     
-    // Fire the ball. Note: in testing
-    // make sure we don't need to rais the arm
-    if (!ballLaunched)
+    // Roll up to lower hub by driving forward 3 secs
+    if (autoTimer.get() < 3.0)
     {
-      ballLaunched = true;
-      if (autoTimer.get() < 5.0)
-      {
-        intakeWheelsMotor.set(-1.0);
-      }
-      else
-      {
-        intakeWheelsMotor.stopMotor();
-      }
+      robotDrive.driveCartesian(-0.5, 0.0, 0.0); // drive forward half speed
+    }
+    else 
+    {
+      // stop robot  
+      robotDrive.stopMotor(); 
+    }
 
+    // Fire the ball. Note: in testing
+    // make sure we don't need to raise the arm
+    if (autoTimer.get() > 3.0 && autoTimer.get() < 5.0) 
+    {
+        intakeWheelsMotor.set(-1.0);
+    }
+    else
+    {
+      intakeWheelsMotor.stopMotor();
     }
     
-    if (autoTimer.get() < 8.0) 
+    if (autoTimer.get() > 5.0 && autoTimer.get() < 10.0) 
     {
-        robotDrive.driveCartesian(-0.5, 0.0, 0.0); // drive backwards half speed
+        robotDrive.driveCartesian(0.5, 0.0, 0.0); // drive backwards half speed
     } 
     else 
     {
       // stop robot  
       robotDrive.stopMotor(); 
+    }
+    
+    // Lower the arm for TeleOp
+    if (autoTimer.get() > 10 && autoTimer.get() < 12)
+    {
+      intakeArmMotor.set(-0.4);
     }
   }
 
@@ -145,13 +173,26 @@ public class Robot extends TimedRobot
     // Send camera feed to dashboard
     topcam = CameraServer.startAutomaticCapture(0);
     bottomcam = CameraServer.startAutomaticCapture(1);
+
+    // Set lights for TeleOp
+    if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
+    {
+      lights.set(-0.15); 
+    }
+    else if (DriverStation.getAlliance() == DriverStation.Alliance.Red)
+    {
+      lights.set(-0.17);
+    }
+    else
+    {
+      lights.set(-0.13);
+    }
   }
 
   // MANUAL OPERATION
   @Override
   public void teleopPeriodic() 
   {
-    
     // Lights go crazy in the last 10 seconds of the match
     // when we should be hanging.
     // Set to "Color Waves, Party Palette" 
@@ -159,7 +200,7 @@ public class Robot extends TimedRobot
     if ((gameTimer.get()) > 130.0 && !endGame)
     {
       endGame = true;
-      //lights.set(-0.43);
+      lights.set(-0.43);
     }
     
     // DRIVE SYSTEM
@@ -179,7 +220,7 @@ public class Robot extends TimedRobot
       System.out.println("Y Button (Triangle) - Climbing up!");
       climberMotor.set(.5);
       // Set lights to "large fire"
-      //lights.set(-0.57);
+      lights.set(-0.57);
     }
     // Lower the robot by unwinding the spool
     else if (game_xbox.getAButton())
@@ -187,7 +228,7 @@ public class Robot extends TimedRobot
       System.out.println("A Button (X Button) - Climbing down!");
       climberMotor.set(-.5);
       // Set lights to rainbow twinkles
-      //lights.set(-0.55);
+      lights.set(-0.55);
     } 
 
     // GAME PIECE INTAKE SYSTEM
@@ -197,7 +238,7 @@ public class Robot extends TimedRobot
       System.out.println("X Button (Square) - Intake retrieving!");
       intakeWheelsMotor.set(.6);
       // Set lights to "light chase blue"
-      //lights.set(-0.29);
+      lights.set(-0.29);
     }
     // Release game pieces - Circle
     else if (game_xbox.getBButton())
@@ -205,7 +246,7 @@ public class Robot extends TimedRobot
       System.out.println("B Button (Circle) - Intake releasing!");
       intakeWheelsMotor.set(-1.0);
       // Set lights to "light chase red"
-      //lights.set(-0.31);
+      lights.set(-0.31);
     }
     // INTAKE ARM SYSTEM
     // Raise the arm - Right trigger
@@ -214,7 +255,7 @@ public class Robot extends TimedRobot
       intakeArmMotor.set(.4);
       System.out.println("Right Bumper Button - Raise Intake Arm");
       // Set lights to solid violet
-      //lights.set(.91);
+      lights.set(.91);
     }
     // Lower the Arm - Left trigger
     else if (game_xbox.getLeftBumper())
@@ -222,15 +263,10 @@ public class Robot extends TimedRobot
       intakeArmMotor.set(-.4);
       System.out.println("Left Bumper Button - Lower Intake Arm");
       // Set lights to solid white
-      //lights.set(.93);
+      lights.set(.93);
     }
     else
     {
-      // Turn the lights off
-      if (!endGame)
-      {
-        lights.stopMotor();
-      }
       // Stop any other motors
       climberMotor.stopMotor();
       intakeWheelsMotor.stopMotor();
