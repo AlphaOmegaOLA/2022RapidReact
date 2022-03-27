@@ -18,9 +18,6 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // Intake Wheel Motor Controller
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
-
-import javax.lang.model.util.ElementScanner6;
-
 // Webcam Server
 import edu.wpi.first.cameraserver.CameraServer;
 // USB Cameras
@@ -40,6 +37,9 @@ public class Robot extends TimedRobot
   private final Spark leftFrontMotor = new Spark(2);
   private final Spark leftRearMotor = new Spark(3);
 
+  // Mecanum Drive System
+  private MecanumDrive robotDrive;
+
   // Climber Motor Controller
   private final Spark climberMotor = new Spark(4);
 
@@ -51,9 +51,6 @@ public class Robot extends TimedRobot
 
   // LED Lights Controller
   private final Spark lights = new Spark(7);
-
-  // Mecanum Drive System
-  private MecanumDrive robotDrive;
 
   // XBox drive Controller
   private final XboxController drive_xbox = new XboxController(0);
@@ -81,10 +78,6 @@ public class Robot extends TimedRobot
   // to go full speed for competition
   double speed = 0.6;
 
-  // Flag to see if the ball was
-  // launched in autonomous mode
-  boolean ballLaunched = false;
-
   // AUTONOMOUS CODE
   @Override
   public void autonomousInit() 
@@ -92,6 +85,11 @@ public class Robot extends TimedRobot
     // autonomous init code goes here
     autoTimer.reset();
     autoTimer.start();
+    gyro.reset();
+    rightFrontMotor.setInverted(true);
+    rightRearMotor.setInverted(true);
+    leftFrontMotor.setInverted(false);
+    leftRearMotor.setInverted(false);
 
     // Turn on the lights for autonomous
     if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
@@ -113,25 +111,13 @@ public class Robot extends TimedRobot
   {
     // Autonmous operations
 
-    // 1. Roll up to the lower hub
-    // 2. Fire a ball into the pit to get points.
-    // 3. Lower the arm
+    // 1. Fire a ball into the pit to get points.
+    // 2. Lower the arm
     // 3. Back out of the tarmac to get taxi points.
     
-    // Roll up to lower hub by driving forward 3 secs
-    if (autoTimer.get() < 3.0)
-    {
-      robotDrive.driveCartesian(-0.5, 0.0, 0.0); // drive forward half speed
-    }
-    else 
-    {
-      // stop robot  
-      robotDrive.stopMotor(); 
-    }
-
     // Fire the ball. Note: in testing
     // make sure we don't need to raise the arm
-    if (autoTimer.get() > 3.0 && autoTimer.get() < 5.0) 
+    if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
     {
         intakeWheelsMotor.set(-1.0);
     }
@@ -140,26 +126,35 @@ public class Robot extends TimedRobot
       intakeWheelsMotor.stopMotor();
     }
     
-    if (autoTimer.get() > 5.0 && autoTimer.get() < 10.0) 
+    if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
     {
-        robotDrive.driveCartesian(0.5, 0.0, 0.0); // drive backwards half speed
+        //robotDrive.driveCartesian(-0.6, 0.0, 0.0); // drive backwards half speed
+        rightFrontMotor.set(-.6);
+        rightRearMotor.set(-.6);
+        leftFrontMotor.set(-.6);
+        leftRearMotor.set(-.6);
     } 
     else 
     {
       // stop robot  
-      robotDrive.stopMotor(); 
+      rightFrontMotor.set(0);
+      rightRearMotor.set(0);
+      leftFrontMotor.set(0);
+      leftRearMotor.set(0); 
     }
-    
+    /*
     // Lower the arm for TeleOp
     if (autoTimer.get() > 10 && autoTimer.get() < 12)
     {
       intakeArmMotor.set(-0.4);
     }
+    */
   }
-
+  
   @Override
   public void robotInit() 
   {
+    gyro.reset();
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
     rightFrontMotor.setInverted(true);
@@ -210,7 +205,9 @@ public class Robot extends TimedRobot
     // while driving in any direction. For driver-oriented you set it to 0.0;
 
     // Mecanum driving - note Y is first and multiplied by a negative  
-    robotDrive.driveCartesian(-1*drive_xbox.getLeftY()*speed, drive_xbox.getLeftX()*speed, drive_xbox.getRightX(), gyro.getAngle());
+    //robotDrive.driveCartesian(-1*drive_xbox.getLeftY()*speed, drive_xbox.getLeftX()*speed, drive_xbox.getRightX(), gyro.getAngle());
+    //robotDrive.driveCartesian(-1*drive_xbox.getLeftY()*speed, drive_xbox.getLeftX()*speed, drive_xbox.getRightX());
+    robotDrive.driveCartesian(-1*drive_xbox.getLeftY(), drive_xbox.getLeftX(), drive_xbox.getRightX());
 
     // CLIMBER SYSTEM
 
