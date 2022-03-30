@@ -5,6 +5,8 @@
 // This project is under version control using Alpha Omega's Github
 // account at https://github.com/AlphaOmegaOLA/2022RapidReact
 
+// Competition code finsihed 3/27/22 - lights shut off for some reason.
+
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
