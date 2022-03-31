@@ -5,7 +5,7 @@
 // This project is under version control using Alpha Omega's Github
 // account at https://github.com/AlphaOmegaOLA/2022RapidReact
 
-// Competition code finsihed 3/27/22 - lights shut off for some reason.
+// Alpha Omega 2022 competition code updated 3/30/22
 
 package frc.robot;
 
@@ -25,7 +25,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 // USB Cameras
 import edu.wpi.first.cscore.UsbCamera;
 // Gyro
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 // Slew rate limiter to make drive system less jumpy
 import edu.wpi.first.math.filter.SlewRateLimiter;
 // Driver station info for game data
@@ -61,7 +61,7 @@ public class Robot extends TimedRobot
   private final XboxController game_xbox = new XboxController(1);
 
   // The gyro
-  private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+  //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
   // Top Camera
   UsbCamera topcam;
@@ -87,11 +87,19 @@ public class Robot extends TimedRobot
     // autonomous init code goes here
     autoTimer.reset();
     autoTimer.start();
-    gyro.reset();
+    //gyro.reset();
     rightFrontMotor.setInverted(true);
+    rightFrontMotor.setSafetyEnabled(false);;
     rightRearMotor.setInverted(true);
+    rightRearMotor.setSafetyEnabled(false);
     leftFrontMotor.setInverted(false);
+    leftFrontMotor.setSafetyEnabled(false);
     leftRearMotor.setInverted(false);
+    leftRearMotor.setSafetyEnabled(false);
+    climberMotor.setSafetyEnabled(false);
+    intakeArmMotor.setSafetyEnabled(false);
+    intakeWheelsMotor.setSafetyEnabled(false);
+    lights.setSafetyEnabled(false);
 
     // Turn on the lights for autonomous
     if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
@@ -117,6 +125,12 @@ public class Robot extends TimedRobot
     // 2. Lower the arm
     // 3. Back out of the tarmac to get taxi points.
     
+    // Make sure all unused motors are set to 0 to
+    // prevent stuttering.
+    climberMotor.set(0);
+    intakeArmMotor.set(0);
+
+
     // Fire the ball. Note: in testing
     // make sure we don't need to raise the arm
     if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
@@ -125,7 +139,7 @@ public class Robot extends TimedRobot
     }
     else
     {
-      intakeWheelsMotor.stopMotor();
+      intakeWheelsMotor.set(0);
     }
     
     if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
@@ -156,13 +170,21 @@ public class Robot extends TimedRobot
   @Override
   public void robotInit() 
   {
-    gyro.reset();
+    //gyro.reset();
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
     rightFrontMotor.setInverted(true);
+    rightFrontMotor.setSafetyEnabled(false);;
     rightRearMotor.setInverted(true);
+    rightRearMotor.setSafetyEnabled(false);
     leftFrontMotor.setInverted(false);
+    leftFrontMotor.setSafetyEnabled(false);
     leftRearMotor.setInverted(false);
+    leftRearMotor.setSafetyEnabled(false);
+    climberMotor.setSafetyEnabled(false);
+    intakeArmMotor.setSafetyEnabled(false);
+    intakeWheelsMotor.setSafetyEnabled(false);
+    lights.setSafetyEnabled(false);
 
     // The Mecanum Drive requires all 4 motors to operate independently
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
@@ -171,7 +193,8 @@ public class Robot extends TimedRobot
     topcam = CameraServer.startAutomaticCapture(0);
     bottomcam = CameraServer.startAutomaticCapture(1);
 
-    // Set lights for TeleOp
+    
+    // Turn on the lights for teleop
     if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
     {
       lights.set(-0.15); 
@@ -219,7 +242,7 @@ public class Robot extends TimedRobot
       System.out.println("Y Button (Triangle) - Climbing up!");
       climberMotor.set(.5);
       // Set lights to "large fire"
-      lights.set(-0.57);
+      //lights.set(-0.57);
     }
     // Lower the robot by unwinding the spool
     else if (game_xbox.getAButton())
@@ -227,7 +250,7 @@ public class Robot extends TimedRobot
       System.out.println("A Button (X Button) - Climbing down!");
       climberMotor.set(-.5);
       // Set lights to rainbow twinkles
-      lights.set(-0.55);
+      //lights.set(-0.55);
     } 
 
     // GAME PIECE INTAKE SYSTEM
@@ -237,7 +260,7 @@ public class Robot extends TimedRobot
       System.out.println("X Button (Square) - Intake retrieving!");
       intakeWheelsMotor.set(.6);
       // Set lights to "light chase blue"
-      lights.set(-0.29);
+      //lights.set(-0.29);
     }
     // Release game pieces - Circle
     else if (game_xbox.getBButton())
@@ -245,7 +268,7 @@ public class Robot extends TimedRobot
       System.out.println("B Button (Circle) - Intake releasing!");
       intakeWheelsMotor.set(-1.0);
       // Set lights to "light chase red"
-      lights.set(-0.31);
+      //lights.set(-0.31);
     }
     // INTAKE ARM SYSTEM
     // Raise the arm - Right trigger
@@ -254,7 +277,7 @@ public class Robot extends TimedRobot
       intakeArmMotor.set(.4);
       System.out.println("Right Bumper Button - Raise Intake Arm");
       // Set lights to solid violet
-      lights.set(.91);
+      //lights.set(.91);
     }
     // Lower the Arm - Left trigger
     else if (game_xbox.getLeftBumper())
@@ -262,14 +285,14 @@ public class Robot extends TimedRobot
       intakeArmMotor.set(-.4);
       System.out.println("Left Bumper Button - Lower Intake Arm");
       // Set lights to solid white
-      lights.set(.93);
+      //lights.set(.93);
     }
     else
     {
       // Stop any other motors
-      climberMotor.stopMotor();
-      intakeWheelsMotor.stopMotor();
-      intakeArmMotor.stopMotor();
+      climberMotor.set(0);
+      intakeWheelsMotor.set(0);
+      intakeArmMotor.set(0);
     }
   }
 }
