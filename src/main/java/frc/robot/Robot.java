@@ -5,7 +5,8 @@
 // This project is under version control using Alpha Omega's Github
 // account at https://github.com/AlphaOmegaOLA/2022RapidReact
 
-// Alpha Omega 2022 competition code updated 3/30/22
+// Alpha Omega 2022 competition code updated 4/9/22.
+// FRC WORLD CHAMPIONSHIPS EDITION!!! HOUSTON HERE WE COME!
 
 package frc.robot;
 
@@ -30,6 +31,8 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 // Driver station info for game data
 import edu.wpi.first.wpilibj.DriverStation;
+// Dashboard for autonomous selection
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot 
 {
@@ -38,6 +41,9 @@ public class Robot extends TimedRobot
   private final Spark rightFrontMotor = new Spark(1);
   private final Spark leftFrontMotor = new Spark(2);
   private final Spark leftRearMotor = new Spark(3);
+
+  private static final String defaultAuto = "Shoot-Roll Back";
+  private static final String optionOneAuto = "Shoot-Wait-Roll Back";
 
   // Mecanum Drive System
   private MecanumDrive robotDrive;
@@ -80,6 +86,8 @@ public class Robot extends TimedRobot
   // to go full speed for competition
   double speed = 0.6;
 
+  String autoName;
+
   // AUTONOMOUS CODE
   @Override
   public void autonomousInit() 
@@ -100,6 +108,9 @@ public class Robot extends TimedRobot
     intakeArmMotor.setSafetyEnabled(false);
     intakeWheelsMotor.setSafetyEnabled(false);
     lights.setSafetyEnabled(false);
+
+    // Autonomous mode selection - go with the default if not set
+    autoName = SmartDashboard.getString("Auto Selector", defaultAuto);
 
     // Turn on the lights for autonomous
     if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
@@ -122,54 +133,83 @@ public class Robot extends TimedRobot
     // Autonmous operations
 
     // 1. Fire a ball into the pit to get points.
-    // 2. Lower the arm
-    // 3. Back out of the tarmac to get taxi points.
+    // 2. Back out of the tarmac to get taxi points.
     
     // Make sure all unused motors are set to 0 to
     // prevent stuttering.
     climberMotor.set(0);
     intakeArmMotor.set(0);
-
-
-    // Fire the ball. Note: in testing
-    // make sure we don't need to raise the arm
-    if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
-    {
-        intakeWheelsMotor.set(-1.0);
-    }
-    else
-    {
-      intakeWheelsMotor.set(0);
-    }
     
-    if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
+    switch(autoName)
     {
-        //robotDrive.driveCartesian(-0.6, 0.0, 0.0); // drive backwards half speed
-        rightFrontMotor.set(-.6);
-        rightRearMotor.set(-.6);
-        leftFrontMotor.set(-.6);
-        leftRearMotor.set(-.6);
-    } 
-    else 
-    {
-      // stop robot  
-      rightFrontMotor.set(0);
-      rightRearMotor.set(0);
-      leftFrontMotor.set(0);
-      leftRearMotor.set(0); 
+      case defaultAuto:
+        // Our original autonomous:
+        //  1. Fire the ball at 3 secs for 3 secs
+        //  2. Roll back at 6.5 secs for 1.5 secs 
+        if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
+        {
+          intakeWheelsMotor.set(-1.0);
+        }
+        else
+        {
+          intakeWheelsMotor.set(0);
+        }
+        
+        if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
+        {
+            rightFrontMotor.set(-.5);
+            rightRearMotor.set(-.5);
+            leftFrontMotor.set(-.5);
+            leftRearMotor.set(-.5);
+        } 
+        else 
+        {
+          // stop robot  
+          rightFrontMotor.set(0);
+          rightRearMotor.set(0);
+          leftFrontMotor.set(0);
+          leftRearMotor.set(0); 
+        }
+      case optionOneAuto:
+        // Team 118 Robonauts alliance auto:
+        //  1. Fire the ball at 3 secs
+        //  2. Roll back at 10 secs for 4 secs.
+        if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
+        {
+          intakeWheelsMotor.set(-1.0);
+        }
+        else
+        {
+          intakeWheelsMotor.set(0);
+        }
+        
+        if (autoTimer.get() > 10.0 && autoTimer.get() < 14.0) 
+        {
+            //robotDrive.driveCartesian(-0.6, 0.0, 0.0); // drive backwards half speed
+            rightFrontMotor.set(-.5);
+            rightRearMotor.set(-.5);
+            leftFrontMotor.set(-.5);
+            leftRearMotor.set(-.5);
+        } 
+        else 
+        {
+          // stop robot  
+          rightFrontMotor.set(0);
+          rightRearMotor.set(0);
+          leftFrontMotor.set(0);
+          leftRearMotor.set(0); 
+        }
     }
-    /*
-    // Lower the arm for TeleOp
-    if (autoTimer.get() > 10 && autoTimer.get() < 12)
-    {
-      intakeArmMotor.set(-0.4);
-    }
-    */
   }
   
   @Override
   public void robotInit() 
   {
+    // Autonomous Mode Selection
+    String[] options = {defaultAuto, optionOneAuto};
+    SmartDashboard.putStringArray("Auto List", options);
+    SmartDashboard.setDefaultString("Auto Selector", "Select Autonomous...");
+    
     //gyro.reset();
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
@@ -239,7 +279,7 @@ public class Robot extends TimedRobot
     // Pull the climbing hook down so the robot climbs.    
     if (game_xbox.getYButton())
     {
-      System.out.println("Y Button (Triangle) - Climbing up!");
+      System.out.println("Y Button (Triangle) - Resetting Hook!");
       climberMotor.set(.5);
       // Set lights to "large fire"
       //lights.set(-0.57);
@@ -247,8 +287,8 @@ public class Robot extends TimedRobot
     // Lower the robot by unwinding the spool
     else if (game_xbox.getAButton())
     {
-      System.out.println("A Button (X Button) - Climbing down!");
-      climberMotor.set(-.5);
+      System.out.println("A Button (X Button) - End Game Climb!");
+      climberMotor.set(-.65);
       // Set lights to rainbow twinkles
       //lights.set(-0.55);
     } 
@@ -265,16 +305,21 @@ public class Robot extends TimedRobot
     // Release game pieces - Circle
     else if (game_xbox.getBButton())
     {
-      System.out.println("B Button (Circle) - Intake releasing!");
+      System.out.println("B Button (Circle) - Fast Intake Release!");
       intakeWheelsMotor.set(-1.0);
       // Set lights to "light chase red"
       //lights.set(-0.31);
+    }
+    else if (game_xbox.getRightY() > 0)
+    {
+      System.out.println("Operator Right Joystick - Slow Intake Release!");
+      intakeWheelsMotor.set(-0.4);
     }
     // INTAKE ARM SYSTEM
     // Raise the arm - Right trigger
     else if (game_xbox.getRightBumper())
     {
-      intakeArmMotor.set(.4);
+      intakeArmMotor.set(.6);
       System.out.println("Right Bumper Button - Raise Intake Arm");
       // Set lights to solid violet
       //lights.set(.91);
