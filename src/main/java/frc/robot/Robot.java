@@ -25,9 +25,8 @@ import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.cameraserver.CameraServer;
 // USB Cameras
 import edu.wpi.first.cscore.UsbCamera;
-// Gyro
-//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-// Slew rate limiter to make drive system less jumpy
+// Slew rate limiter to make drive system less jumpy.
+// Currently not in use.
 import edu.wpi.first.math.filter.SlewRateLimiter;
 // Driver station info for game data
 import edu.wpi.first.wpilibj.DriverStation;
@@ -66,14 +65,12 @@ public class Robot extends TimedRobot
   // XBox drive Controller
   private final XboxController game_xbox = new XboxController(1);
 
-  // The gyro
-  //private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
-
   // Top Camera
   UsbCamera topcam;
   UsbCamera bottomcam;
 
-  // Slew rater limiter to make joystick less jumpy
+  // Slew rater limiter to make joystick less jumpy.
+  // Currently not in use.
   SlewRateLimiter filter = new SlewRateLimiter(0.5);
 
   // Timer for autonomous
@@ -92,10 +89,13 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
-    // autonomous init code goes here
+    // Timer reset
     autoTimer.reset();
     autoTimer.start();
-    //gyro.reset();
+
+    // Invert motors as needed so they spin
+    // in the proper direction. Also disable
+    // safety to prevent stuttering.
     rightFrontMotor.setInverted(true);
     rightFrontMotor.setSafetyEnabled(false);;
     rightRearMotor.setInverted(true);
@@ -112,18 +112,21 @@ public class Robot extends TimedRobot
     // Autonomous mode selection - go with the default if not set
     autoName = SmartDashboard.getString("Auto Selector", defaultAuto);
 
-    // Turn on the lights for autonomous
+    // Turn on the lights for autonomous based on our alliance color
     if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
     {
+      // Breath, Blue
       lights.set(-0.15); 
     }
     else if (DriverStation.getAlliance() == DriverStation.Alliance.Red)
     {
+      // Breath, Red
       lights.set(-0.17);
     }
     else
     {
-      lights.set(-0.13);
+      // Color waves, Rainbow Palette
+      lights.set(-0.45);
     }
   }
 
@@ -148,15 +151,18 @@ public class Robot extends TimedRobot
         //  2. Roll back at 6.5 secs for 1.5 secs 
         if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
         {
+          // Release the ball
           intakeWheelsMotor.set(-1.0);
         }
         else
         {
+          // Stop the launcher
           intakeWheelsMotor.set(0);
         }
         
         if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
         {
+            // Taxi backwards off the tarmac
             rightFrontMotor.set(-.5);
             rightRearMotor.set(-.5);
             leftFrontMotor.set(-.5);
@@ -176,16 +182,18 @@ public class Robot extends TimedRobot
         //  2. Roll back at 10 secs for 4 secs.
         if (autoTimer.get() > 3.0 && autoTimer.get() < 6.0) 
         {
+          // Release the ball
           intakeWheelsMotor.set(-1.0);
         }
         else
         {
+          // Stop the launcher
           intakeWheelsMotor.set(0);
         }
         
         if (autoTimer.get() > 10.0 && autoTimer.get() < 14.0) 
         {
-            //robotDrive.driveCartesian(-0.6, 0.0, 0.0); // drive backwards half speed
+            // Taxi backwards off the tarmac
             rightFrontMotor.set(-.5);
             rightRearMotor.set(-.5);
             leftFrontMotor.set(-.5);
@@ -210,7 +218,6 @@ public class Robot extends TimedRobot
     SmartDashboard.putStringArray("Auto List", options);
     SmartDashboard.setDefaultString("Auto Selector", "Select Autonomous...");
     
-    //gyro.reset();
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
     rightFrontMotor.setInverted(true);
@@ -229,23 +236,27 @@ public class Robot extends TimedRobot
     // The Mecanum Drive requires all 4 motors to operate independently
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
 
-    // Send camera feed to dashboard
+    // Send camera feeds to dashboard.
+    // Lift hook camera
     topcam = CameraServer.startAutomaticCapture(0);
+    // Drive camera
     bottomcam = CameraServer.startAutomaticCapture(1);
-
     
     // Turn on the lights for teleop
     if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
     {
+      // Breath, Blue
       lights.set(-0.15); 
     }
     else if (DriverStation.getAlliance() == DriverStation.Alliance.Red)
     {
+      // Breath, Red
       lights.set(-0.17);
     }
     else
     {
-      lights.set(-0.13);
+      // Color Waves, Rainbow Palette
+      lights.set(-0.45);
     }
   }
 
@@ -255,11 +266,11 @@ public class Robot extends TimedRobot
   {
     // Lights go crazy in the last 10 seconds of the match
     // when we should be hanging.
-    // Set to "Color Waves, Party Palette" 
     boolean endGame = false;
     if ((gameTimer.get()) > 130.0 && !endGame)
     {
       endGame = true;
+      // Color Waves, Party Palette
       lights.set(-0.43);
     }
     
@@ -268,10 +279,9 @@ public class Robot extends TimedRobot
     // Mecanum drive.  The last argument is "gyroangle" to set field-oriented
     // vs. driver oriented steering.  Field-oriented allows the robot to spin
     // while driving in any direction. For driver-oriented you set it to 0.0;
+    // We are using driver oriented and not using the gyro.
 
     // Mecanum driving - note Y is first and multiplied by a negative  
-    //robotDrive.driveCartesian(-1*drive_xbox.getLeftY()*speed, drive_xbox.getLeftX()*speed, drive_xbox.getRightX(), gyro.getAngle());
-    //robotDrive.driveCartesian(-1*drive_xbox.getLeftY()*speed, drive_xbox.getLeftX()*speed, drive_xbox.getRightX());
     robotDrive.driveCartesian(-1*drive_xbox.getLeftY(), drive_xbox.getLeftX(), drive_xbox.getRightX());
 
     // CLIMBER SYSTEM
@@ -281,16 +291,12 @@ public class Robot extends TimedRobot
     {
       System.out.println("Y Button (Triangle) - Resetting Hook!");
       climberMotor.set(.5);
-      // Set lights to "large fire"
-      //lights.set(-0.57);
     }
     // Lower the robot by unwinding the spool
     else if (game_xbox.getAButton())
     {
       System.out.println("A Button (X Button) - End Game Climb!");
       climberMotor.set(-.65);
-      // Set lights to rainbow twinkles
-      //lights.set(-0.55);
     } 
 
     // GAME PIECE INTAKE SYSTEM
@@ -299,16 +305,12 @@ public class Robot extends TimedRobot
     {
       System.out.println("X Button (Square) - Intake retrieving!");
       intakeWheelsMotor.set(.6);
-      // Set lights to "light chase blue"
-      //lights.set(-0.29);
     }
     // Release game pieces - Circle
     else if (game_xbox.getBButton())
     {
       System.out.println("B Button (Circle) - Fast Intake Release!");
       intakeWheelsMotor.set(-1.0);
-      // Set lights to "light chase red"
-      //lights.set(-0.31);
     }
     else if (game_xbox.getRightY() > 0)
     {
@@ -321,16 +323,12 @@ public class Robot extends TimedRobot
     {
       intakeArmMotor.set(.6);
       System.out.println("Right Bumper Button - Raise Intake Arm");
-      // Set lights to solid violet
-      //lights.set(.91);
     }
     // Lower the Arm - Left trigger
     else if (game_xbox.getLeftBumper())
     {
       intakeArmMotor.set(-.4);
       System.out.println("Left Bumper Button - Lower Intake Arm");
-      // Set lights to solid white
-      //lights.set(.93);
     }
     else
     {
