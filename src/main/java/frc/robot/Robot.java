@@ -93,22 +93,6 @@ public class Robot extends TimedRobot
     autoTimer.reset();
     autoTimer.start();
 
-    // Invert motors as needed so they spin
-    // in the proper direction. Also disable
-    // safety to prevent stuttering.
-    rightFrontMotor.setInverted(true);
-    rightFrontMotor.setSafetyEnabled(false);;
-    rightRearMotor.setInverted(true);
-    rightRearMotor.setSafetyEnabled(false);
-    leftFrontMotor.setInverted(false);
-    leftFrontMotor.setSafetyEnabled(false);
-    leftRearMotor.setInverted(false);
-    leftRearMotor.setSafetyEnabled(false);
-    climberMotor.setSafetyEnabled(false);
-    intakeArmMotor.setSafetyEnabled(false);
-    intakeWheelsMotor.setSafetyEnabled(false);
-    lights.setSafetyEnabled(false);
-
     // Autonomous mode selection - go with the default if not set
     autoName = SmartDashboard.getString("Auto Selector", defaultAuto);
 
@@ -154,28 +138,37 @@ public class Robot extends TimedRobot
           // Release the ball
           intakeWheelsMotor.set(-1.0);
         }
-        else
+        else if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
         {
           // Stop the launcher
-          intakeWheelsMotor.set(0);
-        }
-        
-        if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
-        {
-            // Taxi backwards off the tarmac
-            rightFrontMotor.set(-.5);
-            rightRearMotor.set(-.5);
-            leftFrontMotor.set(-.5);
-            leftRearMotor.set(-.5);
+          intakeWheelsMotor.set(0);  
+          // Taxi backwards off the tarmac
+          rightFrontMotor.set(-.5);
+          rightRearMotor.set(-.5);
+          leftFrontMotor.set(-.5);
+          leftRearMotor.set(-.5);
         } 
-        else 
+        else if  (autoTimer.get() > 8.0)
         {
           // stop robot  
           rightFrontMotor.set(0);
           rightRearMotor.set(0);
           leftFrontMotor.set(0);
           leftRearMotor.set(0); 
+          // Stop the launcher
+          intakeWheelsMotor.set(0);
         }
+        else
+        {
+          // stop robot  
+          rightFrontMotor.set(0);
+          rightRearMotor.set(0);
+          leftFrontMotor.set(0);
+          leftRearMotor.set(0); 
+          // Stop the launcher
+          intakeWheelsMotor.set(0);
+        }
+
       case optionOneAuto:
         // Team 118 Robonauts alliance auto:
         //  1. Fire the ball at 3 secs
@@ -185,13 +178,7 @@ public class Robot extends TimedRobot
           // Release the ball
           intakeWheelsMotor.set(-1.0);
         }
-        else
-        {
-          // Stop the launcher
-          intakeWheelsMotor.set(0);
-        }
-        
-        if (autoTimer.get() > 10.0 && autoTimer.get() < 14.0) 
+        else if (autoTimer.get() > 10.0 && autoTimer.get() < 14.0) 
         {
             // Taxi backwards off the tarmac
             rightFrontMotor.set(-.5);
@@ -199,13 +186,25 @@ public class Robot extends TimedRobot
             leftFrontMotor.set(-.5);
             leftRearMotor.set(-.5);
         } 
-        else 
+        else if (autoTimer.get() > 14.0) 
         {
           // stop robot  
           rightFrontMotor.set(0);
           rightRearMotor.set(0);
           leftFrontMotor.set(0);
           leftRearMotor.set(0); 
+          // Stop the launcher
+          intakeWheelsMotor.set(0);
+        }
+        else
+        {
+          // stop robot  
+          rightFrontMotor.set(0);
+          rightRearMotor.set(0);
+          leftFrontMotor.set(0);
+          leftRearMotor.set(0); 
+          // Stop the launcher
+          intakeWheelsMotor.set(0);
         }
     }
   }
@@ -216,22 +215,24 @@ public class Robot extends TimedRobot
     // Autonomous Mode Selection
     String[] options = {defaultAuto, optionOneAuto};
     SmartDashboard.putStringArray("Auto List", options);
-    SmartDashboard.setDefaultString("Auto Selector", "Select Autonomous...");
+    SmartDashboard.setDefaultString("Auto Selector", defaultAuto);
     
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. 
     rightFrontMotor.setInverted(true);
-    rightFrontMotor.setSafetyEnabled(false);;
     rightRearMotor.setInverted(true);
-    rightRearMotor.setSafetyEnabled(false);
     leftFrontMotor.setInverted(false);
-    leftFrontMotor.setSafetyEnabled(false);
     leftRearMotor.setInverted(false);
+    
+    rightFrontMotor.setSafetyEnabled(false);
+    rightRearMotor.setSafetyEnabled(false);
+    leftFrontMotor.setSafetyEnabled(false);
     leftRearMotor.setSafetyEnabled(false);
     climberMotor.setSafetyEnabled(false);
     intakeArmMotor.setSafetyEnabled(false);
     intakeWheelsMotor.setSafetyEnabled(false);
     lights.setSafetyEnabled(false);
+
 
     // The Mecanum Drive requires all 4 motors to operate independently
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
@@ -312,7 +313,7 @@ public class Robot extends TimedRobot
       System.out.println("B Button (Circle) - Fast Intake Release!");
       intakeWheelsMotor.set(-1.0);
     }
-    else if (game_xbox.getRightY() > 0)
+    else if (game_xbox.getRightX() > 0)
     {
       System.out.println("Operator Right Joystick - Slow Intake Release!");
       intakeWheelsMotor.set(-0.4);
