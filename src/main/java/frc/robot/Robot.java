@@ -126,6 +126,8 @@ public class Robot extends TimedRobot
     // prevent stuttering.
     climberMotor.set(0);
     intakeArmMotor.set(0);
+
+    robotDrive.feed();
     
     switch(autoName)
     {
@@ -139,16 +141,14 @@ public class Robot extends TimedRobot
           intakeWheelsMotor.set(-1.0);
         }
         else if (autoTimer.get() > 6.5 && autoTimer.get() < 8.0) 
-        {
-          // Stop the launcher
-          intakeWheelsMotor.set(0);  
+        { 
           // Taxi backwards off the tarmac
           rightFrontMotor.set(-.5);
           rightRearMotor.set(-.5);
           leftFrontMotor.set(-.5);
           leftRearMotor.set(-.5);
         } 
-        else if  (autoTimer.get() > 8.0)
+        else if  (autoTimer.get() > 8.1)
         {
           // stop robot  
           rightFrontMotor.set(0);
@@ -223,20 +223,10 @@ public class Robot extends TimedRobot
     rightRearMotor.setInverted(true);
     leftFrontMotor.setInverted(false);
     leftRearMotor.setInverted(false);
-    
-    rightFrontMotor.setSafetyEnabled(false);
-    rightRearMotor.setSafetyEnabled(false);
-    leftFrontMotor.setSafetyEnabled(false);
-    leftRearMotor.setSafetyEnabled(false);
-    climberMotor.setSafetyEnabled(false);
-    intakeArmMotor.setSafetyEnabled(false);
-    intakeWheelsMotor.setSafetyEnabled(false);
-    lights.setSafetyEnabled(false);
-
 
     // The Mecanum Drive requires all 4 motors to operate independently
     robotDrive = new MecanumDrive(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
-
+    robotDrive.feed();
     // Send camera feeds to dashboard.
     // Lift hook camera
     topcam = CameraServer.startAutomaticCapture(0);
