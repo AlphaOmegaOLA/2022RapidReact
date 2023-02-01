@@ -312,7 +312,7 @@ public class Robot extends TimedRobot
     // Raise the arm - Right trigger
     else if (game_xbox.getRightBumper())
     {
-      intakeArmMotor.set(.6);
+      intakeArmMotor.set(.7);
       System.out.println("Right Bumper Button - Raise Intake Arm");
     }
     // Lower the Arm - Left trigger
